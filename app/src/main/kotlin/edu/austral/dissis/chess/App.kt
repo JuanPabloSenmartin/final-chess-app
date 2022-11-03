@@ -3,10 +3,10 @@
  */
 package edu.austral.dissis.chess
 
+import MyGameEngine
 import edu.austral.dissis.chess.gui.CachedImageResolver
 import edu.austral.dissis.chess.gui.DefaultImageResolver
 import edu.austral.dissis.chess.gui.GameView
-import edu.austral.dissis.chess.gui.SimpleGameEngine
 import javafx.application.Application
 import javafx.application.Application.launch
 import javafx.scene.Scene
@@ -18,7 +18,7 @@ fun main() {
 }
 
 class ChessGameApplication : Application() {
-    private val gameEngine = SimpleGameEngine()
+    private val gameEngine = MyGameEngine()
     private val imageResolver = CachedImageResolver(DefaultImageResolver())
 
     companion object {

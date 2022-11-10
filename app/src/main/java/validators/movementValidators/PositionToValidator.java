@@ -2,6 +2,7 @@ package validators.movementValidators;
 
 import chess.Color;
 import pieces.Piece;
+import pieces.Pieces;
 
 import java.util.Optional;
 
@@ -11,7 +12,9 @@ public class PositionToValidator {
     public boolean isValid(Optional<Piece> optionalPiece, boolean whiteTurn){
         Color turn = Color.BLACK;
         if (whiteTurn) turn = Color.WHITE;
-        return optionalPiece.isEmpty() || optionalPiece.get().getColor() != turn;
+
+        if (optionalPiece.isEmpty()) return true;
+        return optionalPiece.get().getColor() != turn;
     }
 
 }

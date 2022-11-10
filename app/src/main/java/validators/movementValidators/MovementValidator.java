@@ -1,6 +1,8 @@
 package validators.movementValidators;
 
+import chess.Color;
 import chess.Position;
+import chess.Square;
 import chess.board.Board;
 import pieces.Piece;
 
@@ -22,5 +24,9 @@ public class MovementValidator {
     public boolean isPositionToValid(Optional<Piece> optionalPiece, boolean whiteTurn){
         return positionToValidator.isValid(optionalPiece, whiteTurn);
     }
+    public boolean isKingInSafePosition(Board b, Square newPosition, Color color){
+        return kingCheckValidator.isKingSafeInPosition(b, newPosition, color);
+    }
+
 
 }

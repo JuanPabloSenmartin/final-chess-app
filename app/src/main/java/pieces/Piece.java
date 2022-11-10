@@ -8,6 +8,7 @@ public class Piece {
         return id;
     }
     final long id;
+    private int amountOfMoves;
     final Color color;
     Pieces type ;
 
@@ -15,6 +16,7 @@ public class Piece {
         this.id = ++count;
         this.color = color;
         this.type = type;
+        this.amountOfMoves = 0;
     }
 
     public Color getColor() {
@@ -23,5 +25,13 @@ public class Piece {
 
     public Pieces getType() {
         return type;
+    }
+
+    public int getAmountOfMoves() {
+        return amountOfMoves;
+    }
+
+    public void addMove() {
+        this.amountOfMoves = amountOfMoves + 1;
     }
 }

@@ -10,7 +10,9 @@ import pieces.Pieces;
 import java.util.Optional;
 
 public class KingCheckValidator {
-    public boolean isKingSafeInPosition(Board b, Square newPosition, Color color, Square blackKingPosition, Square whiteKingPosition){
+    public boolean isKingSafeInPosition(Board b, Square newPosition, Color color){
+        Square blackKingPosition = b.getBlackKingPosition();
+        Square whiteKingPosition = b.getWhiteKingPosition();
         //checks if no enemy piece threatens king in new position
         int row = newPosition.row;
         int col = newPosition.column;
@@ -118,7 +120,5 @@ public class KingCheckValidator {
     private boolean checkBoundaries(int row, int col, int maxRow, int maxCol) {
         return row <= maxRow && row >= 0 && col <= maxCol && col >= 0;
     }
-    public boolean doesKingHaveAnyValidMove(Square kingPosition, Color color){
-        return true;
-    }
+
 }

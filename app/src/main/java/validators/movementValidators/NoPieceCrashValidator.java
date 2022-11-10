@@ -24,27 +24,27 @@ public class NoPieceCrashValidator {
         int finalRow = positionTo.getRow();
         int finalCol = positionTo.getColumn();
 
-        //down_right movement
+        //up_left movement
         if(finalRow < initialRow && finalCol < initialCol){
-            for (int i = initialRow - 1, j = initialCol + 1; i > finalRow;i-- , j++) {
-                if(!board.getBoard()[i][j].isEmpty()) return false;
-            }
-        }
-        //down_left movement
-        if(finalRow < initialRow && finalCol > initialCol){
-            for (int i = initialRow - 1, j = initialCol - 1; i > finalRow; i--, j--) {
+            for (int i = initialRow - 1, j = initialCol - 1; i > finalRow;i-- , j--) {
                 if(!board.getBoard()[i][j].isEmpty()) return false;
             }
         }
         //up_right movement
-        if(finalRow > initialRow && finalCol < initialCol ){
-            for (int i = initialRow + 1, j = j = initialCol + 1 ; i < finalRow ; i ++ , j++) {
+        if(finalRow < initialRow && finalCol > initialCol){
+            for (int i = initialRow - 1, j = initialCol + 1; i > finalRow; i--, j++) {
                 if(!board.getBoard()[i][j].isEmpty()) return false;
             }
         }
-        //up_left movement
-        if(finalRow > initialRow && finalCol > initialCol ){
+        //down_left movement
+        if(finalRow > initialRow && finalCol < initialCol ){
             for (int i = initialRow + 1, j = j = initialCol - 1 ; i < finalRow ; i ++ , j--) {
+                if(!board.getBoard()[i][j].isEmpty()) return false;
+            }
+        }
+        //down_right movement
+        if(finalRow > initialRow && finalCol > initialCol ){
+            for (int i = initialRow + 1, j = j = initialCol + 1 ; i < finalRow ; i ++ , j++) {
                 if(!board.getBoard()[i][j].isEmpty()) return false;
             }
         }

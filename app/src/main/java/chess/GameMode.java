@@ -15,5 +15,6 @@ public enum GameMode {
     BERLIN,
     CAPABLANCA,
     RANDOM_CAPABLANCA,
-    GRAND
+    GRAND,
+    PRACTICE
 }

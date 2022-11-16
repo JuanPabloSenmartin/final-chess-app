@@ -1,6 +1,7 @@
 package chess.util;
 
 import chess.Position;
+import chess.Square;
 import chess.board.Board;
 import pieces.Piece;
 
@@ -15,6 +16,9 @@ public class CopyBoard {
                 else positions[i][j] = new Position(i,j,new Piece(p.getPiece().getColor(), p.getPiece().getType()));
             }
         }
-        return new Board(positions);
+        Board newBoard = new Board(positions);
+        newBoard.setBlackKingPosition(board.getBlackKingPosition());
+        newBoard.setWhiteKingPosition(board.getWhiteKingPosition());
+        return newBoard;
     }
 }

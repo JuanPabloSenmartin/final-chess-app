@@ -1,8 +1,8 @@
-import chess.Game;
-import chess.GameMode;
-import chess.GameResponse;
+import chess.game.Game;
+import chess.game.GameMode;
+import chess.game.GameResponse;
 
-import chess.GameResponseType;
+import chess.game.GameResponseType;
 import edu.austral.dissis.chess.gui.*;
 import org.jetbrains.annotations.NotNull;
 

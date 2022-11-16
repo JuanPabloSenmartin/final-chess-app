@@ -18,6 +18,12 @@ public class Piece {
         this.type = type;
         this.amountOfMoves = 0;
     }
+    public Piece(Color color, Pieces type, long id) {
+        this.id = id;
+        this.color = color;
+        this.type = type;
+        this.amountOfMoves = 0;
+    }
 
     public Color getColor() {
         return color;

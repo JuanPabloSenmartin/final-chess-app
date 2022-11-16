@@ -1,5 +1,7 @@
 import chess.*;
 import chess.board.Board;
+import chess.game.Game;
+import chess.game.GameMode;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;

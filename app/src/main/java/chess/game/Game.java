@@ -1,5 +1,6 @@
-package chess;
+package chess.game;
 
+import chess.*;
 import chess.board.Board;
 import chess.board.BoardGenerator;
 import chess.util.CopyBoard;
@@ -45,32 +46,45 @@ public class Game {
         if (!validator.isTurnColorCorrect(initialPosition.getPossiblePiece().get().getColor(), whiteTurn)) return new GameResponse(GameResponseType.INVALID_MOVE, "Invalid move! not your turn");
         Piece piece = initialPosition.getPiece();
         Color color = piece.getColor();
-        if (whiteTurn && isWhiteKingInCheck){
-            Board auxBoard = CopyBoard.copyBoard(board);
-            auxBoard.addPieceInPosition(rowTo, columnTo, piece);
-            auxBoard.deletePieceInPosition(rowFrom, columnFrom);
-            if (validator.isKingBeingTargeted(auxBoard, auxBoard.getWhiteKingPosition(), Color.WHITE)) return new GameResponse(GameResponseType.INVALID_MOVE, "Invalid move! king is still in check");
-            isWhiteKingInCheck = false;
-        }
-        if (!whiteTurn && isBlackKingInCheck){
-            Board auxBoard = CopyBoard.copyBoard(board);
-            auxBoard.addPieceInPosition(rowTo, columnTo, piece);
-            auxBoard.deletePieceInPosition(rowFrom, columnFrom);
-            if (validator.isKingBeingTargeted(auxBoard, auxBoard.getBlackKingPosition(), Color.BLACK)) return new GameResponse(GameResponseType.INVALID_MOVE, "Invalid move! king is still in check");
-            isBlackKingInCheck = false;
-        }
 
         if (validator.isMoveValid(board, move)){
+            //checks
+            if (whiteTurn && isWhiteKingInCheck){
+                Board auxBoard = CopyBoard.copyBoard(board);
+                auxBoard.addPieceInPosition(rowTo, columnTo, piece);
+                auxBoard.deletePieceInPosition(rowFrom, columnFrom);
+                if (piece.getType() == Pieces.KING){
+                    auxBoard.setWhiteKingPosition(new Square(rowTo, columnTo));
+                }
+                if (validator.isKingBeingTargeted(auxBoard, auxBoard.getWhiteKingPosition(), Color.WHITE)) return new GameResponse(GameResponseType.INVALID_MOVE, "Invalid move! king is still in check");
+                isWhiteKingInCheck = false;
+            }
+            if (!whiteTurn && isBlackKingInCheck){
+                Board auxBoard = CopyBoard.copyBoard(board);
+                auxBoard.addPieceInPosition(rowTo, columnTo, piece);
+                auxBoard.deletePieceInPosition(rowFrom, columnFrom);
+                if (piece.getType() == Pieces.KING){
+                    auxBoard.setBlackKingPosition(new Square(rowTo, columnTo));
+                }
+                if (validator.isKingBeingTargeted(auxBoard, auxBoard.getBlackKingPosition(), Color.BLACK)) return new GameResponse(GameResponseType.INVALID_MOVE, "Invalid move! king is still in check");
+                isBlackKingInCheck = false;
+            }
+            //
             piece.addMove();
             if (piece.getType() == Pieces.PAWN && (rowTo == 0 || rowTo == 7)){
                 //promotion
-                board.addPieceInPosition(rowTo, columnTo, new Piece(color, Pieces.QUEEN));
+                board.addPieceInPosition(rowTo, columnTo, new Piece(color, Pieces.QUEEN, piece.getId()));
                 board.deletePieceInPosition(rowFrom, columnFrom);
             }
             else {
                 board.addPieceInPosition(rowTo, columnTo, piece);
                 board.deletePieceInPosition(rowFrom, columnFrom);
             }
+            if (piece.getType() == Pieces.KING){
+                if (whiteTurn) board.setWhiteKingPosition(new Square(rowTo, columnTo));
+                else board.setBlackKingPosition(new Square(rowTo, columnTo));
+            }
+
             if (manageCheckingKing()) return new GameResponse(GameResponseType.GAME_OVER, "Game Over! " + color.name() + " is the winner!");
             whiteTurn = !whiteTurn;
         }
@@ -85,16 +99,16 @@ public class Game {
             if (validator.isKingBeingTargeted(board, board.getBlackKingPosition(), Color.BLACK)){
                 if (validator.doesKingHaveAnyValidMove(board, board.getBlackKingPosition(), !whiteTurn)){
                     isBlackKingInCheck = true;
-                    return true;
                 }
+                else return true;
             }
         }
         else{
             if (validator.isKingBeingTargeted(board, board.getWhiteKingPosition(), Color.WHITE)){
                 if (validator.doesKingHaveAnyValidMove(board, board.getWhiteKingPosition(), !whiteTurn)){
                     isWhiteKingInCheck = true;
-                    return true;
                 }
+                else return true;
             }
         }
         return false;

@@ -6,6 +6,7 @@ import chess.Square;
 import chess.board.Board;
 import pieces.Piece;
 
+import java.util.List;
 import java.util.Optional;
 
 public class MovementValidator {
@@ -26,6 +27,9 @@ public class MovementValidator {
     }
     public boolean isKingInSafePosition(Board b, Square newPosition, Color color){
         return kingCheckValidator.isKingSafeInPosition(b, newPosition, color);
+    }
+    public List<Square> getThreatsToKing(Board b, int row, int col, Color color){
+        return kingCheckValidator.findThreatsToKing(b, row, col, color);
     }
 
 

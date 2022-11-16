@@ -1,4 +1,4 @@
-package chess;
+package chess.game;
 
 public class GameResponse {
     private final GameResponseType type;

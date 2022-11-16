@@ -11,6 +11,8 @@ import pieces.Pieces;
 import validators.movementValidators.MovementType;
 import validators.movementValidators.MovementValidator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class Validator {
@@ -41,6 +43,7 @@ public class Validator {
         //checks that piece in positionTo is different color
         if (!movementValidator.isPositionToValid(board.getBoard()[move.finalPosition.row][move.finalPosition.column].getPossiblePiece(),move.whiteTurn)) return false;
         if (board.getBoard()[move.initialPosition.row][move.initialPosition.column].isEmpty()) return false;
+        if (isMakingKingVulnerable(board, move)) return false;
 
         return switch (board.getBoard()[move.initialPosition.row][move.initialPosition.column].getPiece().getType()) {
             case QUEEN -> isQueenMoveValid(board, move);
@@ -50,6 +53,14 @@ public class Validator {
             case ROOK -> isRookMoveValid(board, move);
             case PAWN -> isPawnMoveValid(board, move);
         };
+    }
+
+    private boolean isMakingKingVulnerable(Board board, Move move) {
+        Color color = move.whiteTurn ? Color.WHITE : Color.BLACK;
+        Board auxBoard = CopyBoard.copyBoard(board);
+        auxBoard.addPieceInPosition(move.finalPosition.row, move.finalPosition.column, auxBoard.getBoard()[move.initialPosition.row][move.initialPosition.column].getPiece());
+        auxBoard.deletePieceInPosition(move.initialPosition.row, move.initialPosition.column);
+        return isKingBeingTargeted(auxBoard, move.whiteTurn ? auxBoard.getWhiteKingPosition() : auxBoard.getBlackKingPosition(), color);
     }
 
     private boolean isPawnMoveValid(Board b, Move move) {
@@ -118,6 +129,7 @@ public class Validator {
         Position[][] board = b.getBoard();
         Piece king = board[rowFrom][columnFrom].getPiece();
 
+        if (isKingBeingTargeted(b, new Square(rowTo, columnTo), move.whiteTurn ? Color.WHITE : Color.BLACK)) return false;
         //castle
         if (Math.abs(rowFrom-rowTo) == 0 && Math.abs(columnFrom-columnTo) == 2){
             Board auxBoard = CopyBoard.copyBoard(b);
@@ -166,15 +178,177 @@ public class Validator {
         return true;
     }
     public boolean doesKingHaveAnyValidMove(Board board, Square kingPosition, boolean whiteTurn){
+        //king moves
         for (int i = -1; i < 2; i++) {
             for (int j = -1; j < 2; j++) {
                 if (i == 0 && j == 0) continue;
-                if (isInsideBoardLimit(kingPosition.row + i, kingPosition.column + i, board.getAmountOfRows() - 1, board.getAmountOfColumns() - 1) && isMoveValid(board, new Move(kingPosition, new Square(kingPosition.row + i, kingPosition.column + i), whiteTurn))) return true;
+                if (isInsideBoardLimit(kingPosition.row + i, kingPosition.column + j, board.getAmountOfRows() - 1, board.getAmountOfColumns() - 1) && isMoveValid(board, new Move(kingPosition, new Square(kingPosition.row + i, kingPosition.column + j), whiteTurn))) return true;
 
             }
         }
+        //ally piece blocks
+        List<Square> squaresToBlock = getSquaresToBlock(board, kingPosition, whiteTurn ? Color.WHITE : Color.BLACK);
+        for (Square square : squaresToBlock) {
+            if (canAnyPieceBlock(board, square, whiteTurn ? Color.WHITE : Color.BLACK)) return true;
+        }
         return false;
     }
+
+    private boolean canAnyPieceBlock(Board b, Square position, Color color) {
+        int row = position.row;
+        int col = position.column;
+        Position[][] board = b.getBoard();
+        int maxRow = b.getAmountOfRows()-1;
+        int maxCol = b.getAmountOfColumns()-1;
+        //check for allies in diagonal
+        for (int i = row-1, j = col+1; i >= 0 && j <= maxCol; i--, j++) {
+            Optional<Piece> optionalPiece = board[i][j].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.BISHOP)) return true;
+            break;
+        }
+        for (int i = row+1, j = col+1; i <= maxRow && j <= maxCol; i++, j++) {
+            Optional<Piece> optionalPiece = board[i][j].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.BISHOP)) return true;
+            break;
+        }
+        for (int i = row+1, j = col-1; i <= maxRow && j >= 0; i++, j--) {
+            Optional<Piece> optionalPiece = board[i][j].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.BISHOP)) return true;
+            break;
+        }
+        for (int i = row-1, j = col-1; i >= 0 && j >= 0; i--, j--) {
+            Optional<Piece> optionalPiece = board[i][j].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.BISHOP)) return true;
+            break;
+        }
+
+        //check for allies vertically
+        for (int i = row+1; i <= maxRow; i++) {
+            Optional<Piece> optionalPiece = board[i][col].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.ROOK)) return true;
+            break;
+        }
+        for (int i = row-1; i >= 0 ; i--) {
+            Optional<Piece> optionalPiece = board[i][col].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.ROOK)) return true;
+            break;
+        }
+        //check for allies horizontally
+        for (int j = col+1; j <= maxCol; j++) {
+            Optional<Piece> optionalPiece = board[row][j].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.ROOK)) return true;
+            break;
+        }
+        for (int j = col-1; j >= 0; j--) {
+            Optional<Piece> optionalPiece = board[row][j].getPossiblePiece();
+            if (optionalPiece.isEmpty()) continue;
+            Piece piece = optionalPiece.get();
+            if (piece.getColor() == color && (piece.getType() == Pieces.QUEEN || piece.getType() == Pieces.ROOK)) return true;
+            break;
+        }
+        //checks pawn allies
+        if (color == Color.WHITE) {
+            if (checkAlly(board, row-1, col, Pieces.PAWN, color, maxRow, maxCol)) return true;
+            if (checkAlly(board, row-2, col, Pieces.PAWN, color, maxRow, maxCol) && board[row-2][col].getPiece().getAmountOfMoves() == 0) return true;
+        }
+        else{
+            if (checkAlly(board, row+1, col, Pieces.PAWN, color, maxRow, maxCol)) return true;
+            if (checkAlly(board, row+2, col, Pieces.PAWN, color, maxRow, maxCol) && board[row+2][col].getPiece().getAmountOfMoves() == 0) return true;
+        }
+        //check horse allies
+        if (checkAlly(board, row+2, col-1, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        if (checkAlly(board, row+2, col+1, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        if (checkAlly(board, row+1, col-2, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        if (checkAlly(board, row-1, col-2, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        if (checkAlly(board, row-2, col-1, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        if (checkAlly(board, row-2, col+1, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        if (checkAlly(board, row-1, col+2, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        if (checkAlly(board, row+1, col+2, Pieces.HORSE, color, maxRow, maxCol)) return true;
+        return false;
+    }
+    private boolean checkAlly(Position[][] board, int row, int col, Pieces pieceName, Color color, int maxRow, int maxCol){
+        if (!isInsideBoardLimit(row, col, maxRow, maxCol)) return false;
+        if (board[row][col].isEmpty()) return false;
+        return board[row][col].getPiece().getType() == pieceName && board[row][col].getPiece().getColor() == color;
+    }
+
+    private List<Square> getSquaresToBlock(Board b, Square kingPosition, Color color) {
+        List<Square> squaresToBlock = new ArrayList<>();
+        Position[][] board = b.getBoard();
+
+        List<Square> threats = movementValidator.getThreatsToKing(b, kingPosition.row, kingPosition.column, color);
+        for (Square threat : threats) {
+            squaresToBlock.add(threat);
+            Optional<Piece> threatPiece = board[threat.row][threat.column].getPossiblePiece();
+            if (threatPiece.isEmpty()) continue;
+            if (Math.abs(kingPosition.row-threat.row) != Math.abs(kingPosition.column-threat.column)) {
+                //diagonal
+                if (kingPosition.row < threat.row && kingPosition.column < threat.column){
+                    for (int i = kingPosition.row+1, j = kingPosition.column+1; i < threat.row && j < threat.column; i++, j++) {
+                        squaresToBlock.add(new Square(i,j));
+                    }
+                }
+                else if (kingPosition.row > threat.row && kingPosition.column < threat.column){
+                    for (int i = kingPosition.row-1, j = kingPosition.column+1; i > threat.row && j < threat.column; i--, j++) {
+                        squaresToBlock.add(new Square(i,j));
+                    }
+                }
+                else if (kingPosition.row < threat.row && kingPosition.column > threat.column){
+                    for (int i = kingPosition.row+1, j = kingPosition.column-1; i < threat.row && j > threat.column; i++, j--) {
+                        squaresToBlock.add(new Square(i,j));
+                    }
+                }
+                else {
+                    for (int i = kingPosition.row-1, j = kingPosition.column-1; i > threat.row && j > threat.column; i--, j--) {
+                        squaresToBlock.add(new Square(i,j));
+                    }
+                }
+            }
+
+            if (kingPosition.row == threat.row){
+                //horizontal
+                if (kingPosition.column < threat.column){
+                    for (int j = kingPosition.column+1; j < threat.column; j++) {
+                        squaresToBlock.add(new Square(kingPosition.row, j));
+                    }
+                }
+                else {
+                    for (int j = kingPosition.column-1; j > threat.column; j--) {
+                        squaresToBlock.add(new Square(kingPosition.row, j));
+                    }
+                }
+            }
+            if (kingPosition.column == threat.column){
+                //vertical
+                if (kingPosition.row < threat.row){
+                    for (int i = kingPosition.row+1; i < threat.row; i++) {
+                        squaresToBlock.add(new Square(i, kingPosition.column));
+                    }
+                }
+                else {
+                    for (int i = kingPosition.row-1; i > threat.row; i--) {
+                        squaresToBlock.add(new Square(i, kingPosition.column));
+                    }
+                }
+            }
+        }
+        return squaresToBlock;
+    }
+
     public boolean isKingBeingTargeted(Board board, Square newPosition, Color kingColor){
         return !movementValidator.isKingInSafePosition(board, newPosition, kingColor);
     }

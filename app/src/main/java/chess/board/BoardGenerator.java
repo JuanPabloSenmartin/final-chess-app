@@ -1,7 +1,7 @@
 package chess.board;
 
 import chess.Color;
-import chess.GameMode;
+import chess.game.GameMode;
 import chess.Position;
 import pieces.Piece;
 import pieces.Pieces;

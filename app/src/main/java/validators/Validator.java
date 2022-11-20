@@ -58,7 +58,12 @@ public class Validator {
     private boolean isMakingKingVulnerable(Board board, Move move) {
         Color color = move.whiteTurn ? Color.WHITE : Color.BLACK;
         Board auxBoard = CopyBoard.copyBoard(board);
-        auxBoard.addPieceInPosition(move.finalPosition.row, move.finalPosition.column, auxBoard.getBoard()[move.initialPosition.row][move.initialPosition.column].getPiece());
+        Piece piece = auxBoard.getBoard()[move.initialPosition.row][move.initialPosition.column].getPiece();
+        if (piece.getType() == Pieces.KING){
+            if (move.whiteTurn) auxBoard.setWhiteKingPosition(move.finalPosition);
+            else auxBoard.setBlackKingPosition(move.finalPosition);
+        }
+        auxBoard.addPieceInPosition(move.finalPosition.row, move.finalPosition.column, piece);
         auxBoard.deletePieceInPosition(move.initialPosition.row, move.initialPosition.column);
         return isKingBeingTargeted(auxBoard, move.whiteTurn ? auxBoard.getWhiteKingPosition() : auxBoard.getBlackKingPosition(), color);
     }

@@ -2,9 +2,10 @@ package chess.game;
 
 public enum GameMode {
     CLASSIC,
+    FISCHER_RANDOM,
+    DISPLACED,
     TRANSCENDENTAL,
     RETIRED,
-    BUTTERFLY,
     CONSTRUCTOR,
     EXTINCTION,
     THREE_CHECKS,

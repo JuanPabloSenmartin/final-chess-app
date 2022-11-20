@@ -15,7 +15,7 @@ public class MyGameEngine implements GameEngine {
     @NotNull
     @Override
     public MoveResult applyMove(@NotNull Move move) {
-        GameResponse gameResponse =  game.move(move.getTo().getRow() - 1, move.getTo().getColumn() - 1, move.getFrom().getRow() - 1, move.getFrom().getColumn() - 1);
+        GameResponse gameResponse =  game.move(adjustForZeroBasedIndex(move.getTo().getRow()), adjustForZeroBasedIndex(move.getTo().getColumn()), adjustForZeroBasedIndex(move.getFrom().getRow()), adjustForZeroBasedIndex(move.getFrom().getColumn()));
         if(gameResponse.getType() == GameResponseType.VALID_MOVE){
             return new NewGameState(adapter.getPieces(game.getBoard()),adapter.getPlayerColorFromColor(game.getTurn()));
 
@@ -25,6 +25,10 @@ public class MyGameEngine implements GameEngine {
         else{
             return new GameOver(adapter.getPlayerColorFromColor(game.getTurn()));
         }
+    }
+
+    private static int adjustForZeroBasedIndex(int move) {
+        return move - 1;
     }
 
     @NotNull

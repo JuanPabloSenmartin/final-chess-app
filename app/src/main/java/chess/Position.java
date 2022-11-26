@@ -37,10 +37,10 @@ public class Position {
     public void setPiece(Piece piece) {
         this.possiblePiece = Optional.of(piece);
     }
-
-    public void deletePiece() {
+    public void deletePiece(){
         this.possiblePiece = Optional.empty();
     }
+
 
     public int getRow() {
         return row;
@@ -48,5 +48,8 @@ public class Position {
 
     public int getColumn() {
         return column;
+    }
+    public Square toSquare(){
+        return new Square(row,column);
     }
 }

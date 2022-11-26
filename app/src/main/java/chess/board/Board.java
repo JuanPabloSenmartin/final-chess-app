@@ -1,27 +1,54 @@
 package chess.board;
 
+import chess.Color;
 import chess.Position;
 import chess.Square;
 import pieces.Piece;
+import pieces.Pieces;
 
-import java.util.Optional;
+import java.util.List;
+
 
 public class Board {
-    private Position[][] board;
+    private List<Position> board;
     private final int amountOfRows;
     private final int amountOfColumns;
-    private Square whiteKingPosition;
-    private Square blackKingPosition;
 
-    public Board(Position[][] board) {
+    public Board(List<Position> board, int rows, int columns) {
         this.board = board;
-        this.amountOfRows = board.length;
-        this.amountOfColumns = board[0].length;
-        this.whiteKingPosition = new Square(0,4);
-        this.blackKingPosition = new Square(7,4);
+        this.amountOfRows = rows;
+        this.amountOfColumns = columns;
     }
-    public Position[][] getBoard(){
+    public List<Position> getBoard(){
         return this.board;
+    }
+
+    public Position getPosition(int row, int column){
+        for(Position position : board){
+            if (row == position.getRow() && column == position.getColumn()) return position;
+        }
+        return null;
+    }
+    public Position getPosition(Square square){
+        for(Position position : board){
+            if (square.row == position.getRow() && square.column == position.getColumn()) return position;
+        }
+        return null;
+    }
+
+    public void addPieceInPosition(Square square, Piece piece){
+        Position position = getPosition(square.row, square.column);
+        position.setPiece(piece);
+    }
+    public Position getKingPosition(Color color){
+        for (Position position : board){
+            if (!position.isEmpty() && position.getPiece().getColor() == color && position.getPiece().getType() == Pieces.KING) return position;
+        }
+        return null;
+    }
+    public void deletePieceInPosition(Square square){
+        Position position = getPosition(square.row, square.column);
+        position.deletePiece();
     }
 
     public int getAmountOfRows() {
@@ -31,26 +58,10 @@ public class Board {
     public int getAmountOfColumns() {
         return amountOfColumns;
     }
-
-    public Square getWhiteKingPosition() {
-        return whiteKingPosition;
+    public int getMaxEdgeRow(){
+        return amountOfRows - 1;
     }
-
-    public void setWhiteKingPosition(Square whiteKingPosition) {
-        this.whiteKingPosition = whiteKingPosition;
-    }
-
-    public Square getBlackKingPosition() {
-        return blackKingPosition;
-    }
-
-    public void setBlackKingPosition(Square blackKingPosition) {
-        this.blackKingPosition = blackKingPosition;
-    }
-    public void addPieceInPosition(int row, int col, Piece piece){
-        this.board[row][col].setPiece(piece);
-    }
-    public void deletePieceInPosition(int row, int col){
-        this.board[row][col].deletePiece();
+    public int getMaxEdgeColumn(){
+        return amountOfColumns - 1;
     }
 }

@@ -7,4 +7,6 @@ public enum Pieces {
     PAWN,
     QUEEN,
     ROOK,
+    ARCHBISHOP,
+    CHANCELLOR
 }

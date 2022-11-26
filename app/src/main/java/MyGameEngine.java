@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class MyGameEngine implements GameEngine {
-    Game game = new Game(GameMode.CLASSIC);
+    Game game = new Game(GameMode.BERLIN);
     Adapter adapter = new Adapter();
 
     @NotNull
@@ -34,7 +34,6 @@ public class MyGameEngine implements GameEngine {
     @NotNull
     @Override
     public InitialState init() {
-        game.startGame();
         List<ChessPiece> chessPieces =  adapter.getPieces(game.getBoard());
         return new InitialState(new BoardSize(game.getBoard().getAmountOfColumns(),
                 game.getBoard().getAmountOfRows()), chessPieces,

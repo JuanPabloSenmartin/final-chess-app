@@ -11,6 +11,7 @@ public class Move {
         this.initialPosition = initialPosition;
         this.finalPosition = finalPosition;
         this.whiteTurn = whiteTurn;
+        //sdflñs
     }
     
 }
